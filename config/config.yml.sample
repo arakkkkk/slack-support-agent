@@ -1,0 +1,15 @@
+slack:
+  user_token: ""
+  token: ""
+  search_query: "from:me"
+
+ai:
+  provider: "auto"
+
+openai:
+  api_key: ""
+  model: "gpt-4o-mini"
+
+ollama:
+  base_url: "http://localhost:11434"
+  model: "llama3.1"
