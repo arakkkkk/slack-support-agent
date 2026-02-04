@@ -28,7 +28,7 @@ pip install pyinstaller
 
 ### Windows
 ```
-pyinstaller --name slack-agent-windows --onefile --windowed --distpath ./ --workpath %TEMP%\\slack-agent-build --specpath %TEMP%\\slack-agent-spec app.py
+python -m PyInstaller --name slack-agent-windows --onefile --windowed --distpath ./ --workpath %TEMP%\\slack-agent-build --specpath %TEMP%\\slack-agent-spec app.py
 ```
 
 ### Linux
