@@ -4,7 +4,7 @@ slack:
   search_query: "from:me"
 
 ai:
-  provider: "auto"
+  provider: "ollama"
 
 openai:
   api_key: ""

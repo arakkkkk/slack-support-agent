@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import os
+import sys
 from typing import Any, Optional
 
 import yaml
@@ -69,17 +70,24 @@ def load_config(path: Optional[str] = None) -> AppConfig:
         ),
         model=_value(ollama_data, "model", os.getenv("OLLAMA_MODEL", "")),
     )
-    ai_provider = _value(ai_data, "provider", os.getenv("AI_PROVIDER", "auto"))
+    ai_provider = _value(ai_data, "provider", os.getenv("AI_PROVIDER", "ollama"))
 
     return AppConfig(
         slack=slack,
         openai=openai,
         ollama=ollama,
-        ai_provider=ai_provider.strip().lower() or "auto",
+        ai_provider=ai_provider.strip().lower() or "ollama",
     )
 
 
 def _default_path() -> str:
+    override = os.environ.get("SLACK_AGENT_CONFIG")
+    if override:
+        return override
+
+    if getattr(sys, "frozen", False):
+        return os.path.join(os.path.dirname(sys.executable), "config", "config.yml")
+
     base_dir = os.path.dirname(os.path.dirname(__file__))
     return os.path.join(base_dir, "config", "config.yml")
 

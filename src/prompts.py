@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import sys
 from pathlib import Path
 from typing import Dict, Optional
 _FILE_MAP = {
@@ -42,6 +44,13 @@ def _load_prompts() -> Dict[str, str]:
 
 
 def _prompt_dir() -> Path:
+    override = os.environ.get("SLACK_AGENT_PROMPTS")
+    if override:
+        return Path(override)
+
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent / "prompts"
+
     root = Path(__file__).resolve().parents[1]
     return root / "prompts"
 

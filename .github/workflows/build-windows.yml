@@ -1,0 +1,33 @@
+name: build-windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build exe
+        run: |
+          pyinstaller --name slack-agent-windows --onefile --windowed --distpath ./ --workpath $env:RUNNER_TEMP\slack-agent-build --specpath $env:RUNNER_TEMP\slack-agent-spec --add-data "$PWD\prompts;prompts" --add-data "$PWD\config;config" app.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: slack-agent-windows
+          path: slack-agent-windows
