@@ -3,6 +3,8 @@
 Slackのスレッドに対して、AIサポートを提供するデスクトップアプリです。  
 Tkinter製で、OpenAI / Azure OpenAI / Ollama に対応します。
 
+![img](./docs/ui.png)
+
 ## 対応OS
 - Windows
 - Linux
