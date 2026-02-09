@@ -21,10 +21,12 @@ def generate_support(text: str, mode: str, context: Optional[str] = None) -> Sup
     provider = _resolve_provider(config.ai_provider)
     if provider is None:
         return _error_support(
-            ["AI providerはopenai/ollamaのいずれかに設定してください。"]
+            ["AI providerはopenai/azure_openai/ollamaのいずれかに設定してください。"]
         )
     if provider == "openai":
         result, error = _generate_with_openai(text, mode, context, config)
+    elif provider == "azure_openai":
+        result, error = _generate_with_azure_openai(text, mode, context, config)
     else:
         result, error = _generate_with_ollama(text, mode, context, config)
     if result:
@@ -34,7 +36,9 @@ def generate_support(text: str, mode: str, context: Optional[str] = None) -> Sup
 
 def _resolve_provider(value: str) -> Optional[str]:
     provider = (value or "").strip().lower()
-    if provider in {"openai", "ollama"}:
+    if provider == "azure":
+        return "azure_openai"
+    if provider in {"openai", "azure_openai", "ollama"}:
         return provider
     return None
 
@@ -66,6 +70,45 @@ def _generate_with_openai(
     if not content:
         return None, "OpenAI APIの応答が空でした。"
     return SupportResult(content=content, model="openai"), None
+
+
+def _generate_with_azure_openai(
+    text: str, mode: str, context: str, config
+) -> Tuple[Optional[SupportResult], Optional[str]]:
+    try:
+        from openai import AzureOpenAI
+    except Exception:
+        return None, "Azure OpenAI SDKの読み込みに失敗しました。"
+
+    azure = config.azure_openai
+    if not azure.api_key:
+        return None, "Azure OpenAI APIキーが未設定です。"
+    if not azure.endpoint:
+        return None, "Azure OpenAI endpointが未設定です。"
+    if not azure.deployment:
+        return None, "Azure OpenAI deploymentが未設定です。"
+    if not azure.api_version:
+        return None, "Azure OpenAI api_versionが未設定です。"
+
+    client = AzureOpenAI(
+        api_key=azure.api_key,
+        azure_endpoint=azure.endpoint,
+        api_version=azure.api_version,
+    )
+    instruction = instruction_for(mode)
+    messages = _build_messages(instruction, context, text)
+    try:
+        response = client.responses.create(
+            model=azure.deployment,
+            input=messages,
+        )
+    except Exception as exc:
+        return None, f"Azure OpenAI APIエラー: {exc}"
+
+    content = response.output_text.strip() if hasattr(response, "output_text") else ""
+    if not content:
+        return None, "Azure OpenAI APIの応答が空でした。"
+    return SupportResult(content=content, model="azure_openai"), None
 
 
 def _generate_with_ollama(

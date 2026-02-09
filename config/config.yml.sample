@@ -10,6 +10,12 @@ openai:
   api_key: ""
   model: "gpt-4o-mini"
 
+azure_openai:
+  api_key: ""
+  endpoint: ""
+  deployment: ""
+  api_version: ""
+
 ollama:
   base_url: "http://localhost:11434"
   model: "llama3.1"
