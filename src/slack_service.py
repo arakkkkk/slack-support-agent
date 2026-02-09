@@ -5,7 +5,10 @@ from typing import Optional
 
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
+import ssl, certifi
+from slack_sdk import WebClient
 
+ctx = ssl.create_default_context(cafile=certifi.where())
 
 @dataclass
 class SlackMessage:
@@ -21,7 +24,7 @@ class SlackMessage:
 
 class SlackService:
     def __init__(self, user_token: str) -> None:
-        self.client = WebClient(token=user_token)
+        self.client = WebClient(token=user_token, ssl=ctx)
 
     def search_messages(self, query: str, limit: int = 10) -> list[SlackMessage]:
         if not query.strip():
